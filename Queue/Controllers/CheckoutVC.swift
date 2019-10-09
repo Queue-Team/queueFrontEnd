@@ -14,55 +14,57 @@ class CheckoutVC: UIViewController {
     var items: [MenuItem]?
     var tableView = UITableView()
     var itemView = ItemDetailView()
+    var dataSource = CheckoutModel()
+    override func viewWillAppear(_ animated: Bool) {
+        dataSource.setup()
+        if(dataSource.isNotEmpty()){
+            tableViewSetup()
+        }
+        tableView.reloadData()
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        NotificationCenter.default.addObserver(self, selector: #selector(checkoutNow), name: NSNotification.Name(rawValue: "checkout"), object: nil)
         view.backgroundColor = .white
         title = "Cart"
+        
         
     }
     
     override func viewSafeAreaInsetsDidChange() {
         super.viewSafeAreaInsetsDidChange()
-        items = Defaults().fetchCart()
-        if(items?.count != 0) {
-             tableViewSetup()
+        dataSource.setup()
+        if(dataSource.isNotEmpty()){
+            tableViewSetup()
         }
-       
     }
+    
+    
+    @objc func checkoutNow() {
+        self.navigationController?.pushViewController(DoneCheckOutVC(), animated: true)
+    }
+    
+}
+extension CheckoutVC: UITableViewDelegate {
     func tableViewSetup() {
         tableView.delegate = self
-        tableView.dataSource = self
+        tableView.dataSource = dataSource
         tableView.separatorStyle = .none
         tableView.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height)
         view.addSubview(tableView)
     }
-    
-}
-extension CheckoutVC: UITableViewDelegate, UITableViewDataSource {
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return (items!.count)
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
-    }
-    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if(indexPath.section == dataSource.viewModel.numberOfItems()) {
+            return 150
+        }
         return 50
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-        let cell = RestaurantItemCell()
-        cell.item = items![indexPath.section]
-        return cell
-        
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if(section == 0) {
             return 0
+        } else if section == items?.count{
+            return 30
         } else {
             return 5
         }

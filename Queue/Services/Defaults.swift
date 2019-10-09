@@ -20,6 +20,7 @@ class Defaults {
         }
         userDefaults.set(allItemsStringArray, forKey: "cart")
     }
+    
     func addItemToCart(item: MenuItem) {
         let itemAsString = "\(item.title)~\(item.description)~\(item.price)"
         var allItems = userDefaults.stringArray(forKey: "cart")
@@ -30,6 +31,7 @@ class Defaults {
              userDefaults.set([itemAsString], forKey: "cart")
         }
     }
+    
     func fetchCart()->[MenuItem]?{
         var allItems: [MenuItem]?
         let allItemsStringArray = userDefaults.stringArray(forKey: "cart")

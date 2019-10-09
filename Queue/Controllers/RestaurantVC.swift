@@ -11,6 +11,7 @@ import UIKit
 
 class RestaurantVC: UIViewController {
     
+    var dataSource = RestaurantModel()
     var restaurant:ResaurantElement?
     var tableView = UITableView()
     var itemView = ItemDetailView()
@@ -18,49 +19,31 @@ class RestaurantVC: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .white
-        title = restaurant!.title
+        title = dataSource.viewModel.getRestaurant().title
     }
     
     override func viewSafeAreaInsetsDidChange() {
         super.viewSafeAreaInsetsDidChange()
         tableViewSetup()
     }
+    
+    
+}
+extension RestaurantVC: UITableViewDelegate{
     func tableViewSetup() {
         tableView.delegate = self
-        tableView.dataSource = self
+        tableView.dataSource = dataSource
         tableView.separatorStyle = .none
         tableView.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height)
         view.addSubview(tableView)
+        tableView.reloadData()
     }
-    
-}
-extension RestaurantVC: UITableViewDelegate, UITableViewDataSource {
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return (restaurant?.menuItems.count)! + 1
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
-    }
-    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if(indexPath.section == 0) {
             return view.bounds.height * 0.3
         } else {
             return 50
         }
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if(indexPath.section == 0) {
-            let cell = RestaurantHeaderCell()
-            cell.restaurant = restaurant
-            return cell
-        }
-        let cell = RestaurantItemCell()
-        cell.item = restaurant!.menuItems[indexPath.section - 1]
-        return cell
-        
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -81,7 +64,7 @@ extension RestaurantVC: UITableViewDelegate, UITableViewDataSource {
         if(indexPath.section == 0) {
             return
         }
-        let item = restaurant?.menuItems[indexPath.section - 1]
+        let item = dataSource.viewModel.getItem(index: indexPath.section - 1)
         itemView = ItemDetailView()
         itemView.item = item
         itemView.addButton.addTarget(self, action: #selector(cancelPressed), for: .touchUpInside)
